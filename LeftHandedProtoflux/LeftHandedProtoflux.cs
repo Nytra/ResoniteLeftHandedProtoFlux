@@ -1,15 +1,15 @@
-using HarmonyLib;
-using ResoniteModLoader;
+using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.ProtoFlux;
-using System.Reflection;
-using Elements.Core;
-using System;
 using FrooxEngine.UIX;
+using HarmonyLib;
+using ResoniteModLoader;
+using System;
+using System.Reflection;
 
-namespace LeftHandedProtoflux
+namespace LeftHandedProtoFlux
 {
-	public class LeftHandedProtoflux : ResoniteMod
+	public class LeftHandedProtoFlux : ResoniteMod
 	{
 		public override string Name => "LeftHandedProtoFlux";
 		public override string Author => "Nytra";
@@ -31,7 +31,7 @@ namespace LeftHandedProtoflux
 		// four patches because patching one generic method is apparently too difficult for harmony
 
 		[HarmonyPatch(typeof(ProtoFluxNodeVisual), "GenerateInputElement")]
-		class LeftHandedProtofluxPatch1
+		class LeftHandedProtoFluxPatch1
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
@@ -60,7 +60,7 @@ namespace LeftHandedProtoflux
 		}
 
 		[HarmonyPatch(typeof(ProtoFluxNodeVisual), "GenerateOutputElement")]
-		class LeftHandedProtofluxPatch2
+		class LeftHandedProtoFluxPatch2
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
@@ -89,7 +89,7 @@ namespace LeftHandedProtoflux
 		}
 
 		[HarmonyPatch(typeof(ProtoFluxNodeVisual), "GenerateImpulseElement")]
-		class LeftHandedProtofluxPatch3
+		class LeftHandedProtoFluxPatch3
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
@@ -118,7 +118,7 @@ namespace LeftHandedProtoflux
 		}
 
 		[HarmonyPatch(typeof(ProtoFluxNodeVisual), "GenerateOperationElement")]
-		class LeftHandedProtofluxPatch4
+		class LeftHandedProtoFluxPatch4
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
