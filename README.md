@@ -1,5 +1,7 @@
 # LeftHandedProtoFlux
 
+![2024-04-23 23 25 24](https://github.com/Nytra/ResoniteLeftHandedProtoFlux/assets/14206961/59558594-25e6-46f1-bf9a-292b00f1f682)
+
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/) that makes ProtoFlux flow from right to left. This is a meme mod.
 
 ## Installation
