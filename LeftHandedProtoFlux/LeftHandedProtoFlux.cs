@@ -13,7 +13,7 @@ namespace LeftHandedProtoFlux
 	{
 		public override string Name => "LeftHandedProtoFlux";
 		public override string Author => "Nytra";
-		public override string Version => "1.1.0";
+		public override string Version => "1.1.1";
 		public override string Link => "https://github.com/Nytra/ResoniteLeftHandedProtoFlux";
 
 		public static ModConfiguration Config;
@@ -41,6 +41,10 @@ namespace LeftHandedProtoFlux
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, ISyncRef input, string name, Type elementType, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
+
 				bool isOutput = true; // default: false
 				bool flipSprite = true; // default: false
 				colorX color = elementType.GetTypeColor().MulRGB(1.5f);
@@ -75,6 +79,10 @@ namespace LeftHandedProtoFlux
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, INodeOutput output, string name, Type elementType, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
+
 				bool isOutput = false; // default: true
 				bool flipSprite = false; // default: true
 				colorX color = elementType.GetTypeColor().MulRGB(1.5f);
@@ -109,6 +117,10 @@ namespace LeftHandedProtoFlux
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, ISyncRef input, string name, ProtoFlux.Core.ImpulseType type, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
+
 				bool isOutput = false; // default: true
 				bool flipSprite = true; // default: false
 				colorX color = type.GetImpulseColor().MulRGB(1.5f);
@@ -143,6 +155,10 @@ namespace LeftHandedProtoFlux
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, INodeOperation operation, string name, bool isAsync, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
+
 				bool isOutput = true; // default: false
 				bool flipSprite = true; // default: false
 				colorX color = DatatypeColorHelper.GetOperationColor(isAsync).MulRGB(1.5f);
@@ -171,9 +187,13 @@ namespace LeftHandedProtoFlux
 		[HarmonyPatch(typeof(ProtoFluxWireManager), "Setup")]
 		class LeftHandedProtoFluxPatch5
 		{
-			public static bool Prefix(ref WireType type)
+			public static bool Prefix(ProtoFluxWireManager __instance, ref WireType type)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
+
 				if (type == WireType.Input) type = WireType.Output;
 				else if (type == WireType.Output) type = WireType.Input;
 				return true;
