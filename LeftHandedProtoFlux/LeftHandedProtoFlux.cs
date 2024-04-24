@@ -21,6 +21,8 @@ namespace LeftHandedProtoFlux
 		[AutoRegisterConfigKey]
 		private static ModConfigurationKey<bool> MOD_ENABLED = new ModConfigurationKey<bool>("MOD_ENABLED", "Mod Enabled:", () => true);
 
+		static MethodInfo generateFixedElementMethod = AccessTools.Method(typeof(ProtoFluxNodeVisual), "GenerateFixedElement");
+
 		public override void OnEngineInit()
 		{
 			Config = GetConfiguration();
@@ -35,13 +37,18 @@ namespace LeftHandedProtoFlux
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
+			static MethodInfo method = null;
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, ISyncRef input, string name, Type elementType, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
 				bool isOutput = true; // default: false
+				bool flipSprite = true; // default: false
 				colorX color = elementType.GetTypeColor().MulRGB(1.5f);
-				var method = AccessTools.Method(typeof(ProtoFluxNodeVisual), "GenerateFixedElement").MakeGenericMethod(new Type[] { typeof(ProtoFluxInputProxy) });
-				object res = method.Invoke(__instance, new object[] { ui, name, color, elementType.GetTypeConnectorSprite(__instance.World), isOutput, false, listIndex });
+				if (method == null)
+				{
+					method = generateFixedElementMethod.MakeGenericMethod(new Type[] { typeof(ProtoFluxInputProxy) });
+				}
+				object res = method.Invoke(__instance, new object[] { ui, name, color, elementType.GetTypeConnectorSprite(__instance.World), isOutput, flipSprite, listIndex });
 				if (field1 == null)
 				{
 					field1 = AccessTools.Field(res.GetType(), "Item1");
@@ -64,13 +71,18 @@ namespace LeftHandedProtoFlux
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
+			static MethodInfo method = null;
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, INodeOutput output, string name, Type elementType, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
 				bool isOutput = false; // default: true
+				bool flipSprite = false; // default: true
 				colorX color = elementType.GetTypeColor().MulRGB(1.5f);
-				var method = AccessTools.Method(typeof(ProtoFluxNodeVisual), "GenerateFixedElement").MakeGenericMethod(new Type[] { typeof(ProtoFluxOutputProxy) });
-				object res = method.Invoke(__instance, new object[] { ui, name, color, elementType.GetTypeConnectorSprite(__instance.World), isOutput, true, listIndex });
+				if (method == null)
+				{
+					method = generateFixedElementMethod.MakeGenericMethod(new Type[] { typeof(ProtoFluxOutputProxy) });
+				}
+				object res = method.Invoke(__instance, new object[] { ui, name, color, elementType.GetTypeConnectorSprite(__instance.World), isOutput, flipSprite, listIndex });
 				if (field1 == null)
 				{
 					field1 = AccessTools.Field(res.GetType(), "Item1");
@@ -93,13 +105,18 @@ namespace LeftHandedProtoFlux
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
+			static MethodInfo method = null;
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, ISyncRef input, string name, ProtoFlux.Core.ImpulseType type, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
 				bool isOutput = false; // default: true
+				bool flipSprite = true; // default: false
 				colorX color = type.GetImpulseColor().MulRGB(1.5f);
-				var method = AccessTools.Method(typeof(ProtoFluxNodeVisual), "GenerateFixedElement").MakeGenericMethod(new Type[] { typeof(ProtoFluxImpulseProxy) });
-				object res = method.Invoke(__instance, new object[] { ui, name, color, __instance.World.GetFlowConnectorSprite(), isOutput, false, listIndex });
+				if (method == null)
+				{
+					method = generateFixedElementMethod.MakeGenericMethod(new Type[] { typeof(ProtoFluxImpulseProxy) });
+				}
+				object res = method.Invoke(__instance, new object[] { ui, name, color, __instance.World.GetFlowConnectorSprite(), isOutput, flipSprite, listIndex });
 				if (field1 == null)
 				{
 					field1 = AccessTools.Field(res.GetType(), "Item1");
@@ -122,13 +139,18 @@ namespace LeftHandedProtoFlux
 		{
 			static FieldInfo field1 = null;
 			static FieldInfo field2 = null;
+			static MethodInfo method = null;
 			public static bool Prefix(ProtoFluxNodeVisual __instance, ref Slot __result, UIBuilder ui, INodeOperation operation, string name, bool isAsync, int? listIndex = null)
 			{
 				if (!Config.GetValue(MOD_ENABLED)) return true;
 				bool isOutput = true; // default: false
+				bool flipSprite = true; // default: false
 				colorX color = DatatypeColorHelper.GetOperationColor(isAsync).MulRGB(1.5f);
-				var method = AccessTools.Method(typeof(ProtoFluxNodeVisual), "GenerateFixedElement").MakeGenericMethod(new Type[] { typeof(ProtoFluxOperationProxy) });
-				object res = method.Invoke(__instance, new object[] { ui, name, color, __instance.World.GetFlowConnectorSprite(), isOutput, false, listIndex });
+				if (method == null)
+				{
+					method = generateFixedElementMethod.MakeGenericMethod(new Type[] { typeof(ProtoFluxOperationProxy) });
+				}
+				object res = method.Invoke(__instance, new object[] { ui, name, color, __instance.World.GetFlowConnectorSprite(), isOutput, flipSprite, listIndex });
 				if (field1 == null)
 				{
 					field1 = AccessTools.Field(res.GetType(), "Item1");
@@ -143,6 +165,18 @@ namespace LeftHandedProtoFlux
 				item2.IsAsync.Value = isAsync;
 				__result = item1;
 				return false;
+			}
+		}
+
+		[HarmonyPatch(typeof(ProtoFluxWireManager), "Setup")]
+		class LeftHandedProtoFluxPatch5
+		{
+			public static bool Prefix(ref WireType type)
+			{
+				if (!Config.GetValue(MOD_ENABLED)) return true;
+				if (type == WireType.Input) type = WireType.Output;
+				else if (type == WireType.Output) type = WireType.Input;
+				return true;
 			}
 		}
 	}
