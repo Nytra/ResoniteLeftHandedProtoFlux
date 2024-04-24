@@ -13,7 +13,7 @@ namespace LeftHandedProtoFlux
 	{
 		public override string Name => "LeftHandedProtoFlux";
 		public override string Author => "Nytra";
-		public override string Version => "1.1.1";
+		public override string Version => "1.2.0";
 		public override string Link => "https://github.com/Nytra/ResoniteLeftHandedProtoFlux";
 
 		public static ModConfiguration Config;
@@ -197,6 +197,50 @@ namespace LeftHandedProtoFlux
 				if (type == WireType.Input) type = WireType.Output;
 				else if (type == WireType.Output) type = WireType.Input;
 				return true;
+			}
+		}
+
+		[HarmonyPatch(typeof(ProtoFluxInputProxy), "InsertRelay")]
+		class LeftHandedProtoFluxPatch6
+		{
+			public static void Postfix(ProtoFluxInputProxy __instance)
+			{
+				if (!Config.GetValue(MOD_ENABLED)) return;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return;
+
+				var node = (ProtoFluxNode)__instance.NodeInput.Target?.Target;
+				if (node != null)
+				{
+					node.RunSynchronously(() =>
+					{
+						if (node.FilterWorldElement() == null) return;
+						node.Slot.LocalRotation += new floatQ(0f, 180f, 0f, 0f);
+					});
+				}
+			}
+		}
+
+		[HarmonyPatch(typeof(ProtoFluxImpulseProxy), "InsertRelay")]
+		class LeftHandedProtoFluxPatch7
+		{
+			public static void Postfix(ProtoFluxImpulseProxy __instance)
+			{
+				if (!Config.GetValue(MOD_ENABLED)) return;
+
+				// I don't think this check is needed, but doing it just in case
+				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return;
+
+				var node = (ProtoFluxNode)__instance.NodeImpulse.Target?.Target;
+				if (node != null)
+				{
+					node.RunSynchronously(() =>
+					{
+						if (node.FilterWorldElement() == null) return;
+						node.Slot.LocalRotation += new floatQ(0f, 180f, 0f, 0f);
+					});
+				}
 			}
 		}
 	}
