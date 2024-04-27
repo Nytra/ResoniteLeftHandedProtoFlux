@@ -13,7 +13,7 @@ namespace LeftHandedProtoFlux
 	{
 		public override string Name => "LeftHandedProtoFlux";
 		public override string Author => "Nytra";
-		public override string Version => "1.2.0";
+		public override string Version => "1.2.1";
 		public override string Link => "https://github.com/Nytra/ResoniteLeftHandedProtoFlux";
 
 		public static ModConfiguration Config;
@@ -194,8 +194,54 @@ namespace LeftHandedProtoFlux
 				// I don't think this check is needed, but doing it just in case
 				if (__instance.Slot.ReferenceID.User != __instance.LocalUser.AllocationID) return true;
 
-				if (type == WireType.Input) type = WireType.Output;
-				else if (type == WireType.Output) type = WireType.Input;
+				if (type == WireType.Input)
+				{
+					type = WireType.Output;
+				}
+				else if (type == WireType.Output)
+				{
+					type = WireType.Input;
+				}
+
+				var field = __instance.Slot.GetComponentOrAttach<ValueField<WireType>>();
+				field.Value.Value = type;
+				if (!__instance.Type.IsDriven)
+				{
+					var copy = __instance.Slot.GetComponentOrAttach<ValueCopy<WireType>>();
+					copy.Source.Target = field.Value;
+					copy.Target.Target = __instance.Type;
+				}
+
+				var mesh = __instance.TryGetField("_wireMesh") as SyncRef<StripeWireMesh>;
+
+				if (mesh != null && mesh.Target != null)
+				{
+					float3 v = type == WireType.Output ? float3.Right : float3.Left;
+
+					var field2 = __instance.Slot.GetComponentOrAttach<ValueField<float3>>();
+					field2.Value.Value = v * ProtoFluxWireManager.TANGENT_MAGNITUDE;
+					if (!mesh.Target.Tangent0.IsDriven)
+					{
+						var copy2 = __instance.Slot.GetComponentOrAttach<ValueCopy<float3>>();
+						copy2.Source.Target = field2.Value;
+						copy2.Target.Target = mesh.Target.Tangent0;
+					}
+
+					floatQ rot = type == WireType.Output ? ProtoFluxWireManager.WIRE_ORIENTATION_OUTPUT : ProtoFluxWireManager.WIRE_ORIENTATION_INPUT;
+
+					var field3 = __instance.Slot.GetComponentOrAttach((ValueField<floatQ> f) => f.UpdateOrder == 0);
+					field3.UpdateOrder = 0;
+					field3.Value.Value = rot;
+
+					if (!mesh.Target.Orientation0.IsDriven)
+					{
+						var copy3 = __instance.Slot.GetComponentOrAttach((ValueCopy<floatQ> c) => c.UpdateOrder == 0);
+						copy3.UpdateOrder = 0;
+						copy3.Source.Target = field3.Value;
+						copy3.Target.Target = mesh.Target.Orientation0;
+					}
+				}
+
 				return true;
 			}
 		}
